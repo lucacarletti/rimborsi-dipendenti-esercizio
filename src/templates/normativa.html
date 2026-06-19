@@ -12,7 +12,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for codice, massimale in rules.MASSIMALI_GIORNALIERI.items() %}
+    {% for codice, massimale in rules.massimali_giornalieri("2026-01-01").items() %}
     <tr>
       <td>{{ rules.CATEGORIE[codice] }}</td>
       <td class="num">{{ "%.2f"|format(massimale) }} € / giorno</td>
@@ -20,18 +20,31 @@
     {% endfor %}
     <tr>
       <td>{{ rules.CATEGORIE["chilometrico"] }}</td>
-      <td class="num">{{ "%.2f"|format(rules.MASSIMALE_KM) }} € / km</td>
+      <td class="num">{{ "%.2f"|format(rules.massimale_km("2026-01-01")) }} € / km</td>
     </tr>
     <tr>
       <td>{{ rules.CATEGORIE["alloggio"] }}</td>
-      <td class="num">{{ "%.2f"|format(rules.MASSIMALE_NOTTE) }} € / notte</td>
+      <td class="num">{{ "%.2f"|format(rules.massimale_notte("2026-01-01")) }} € / notte</td>
     </tr>
     <tr class="riga-evidenziata">
       <td><strong>Plafond mensile complessivo per dipendente</strong></td>
-      <td class="num"><strong>{{ "%.2f"|format(rules.PLAFOND_MENSILE) }} € / mese</strong></td>
+      <td class="num"><strong>{{ "%.2f"|format(rules.plafond_mensile("2026-01-01")) }} € / mese</strong></td>
     </tr>
   </tbody>
 </table>
+
+<p class="nota">
+  Trasferte all'estero oltre 5 giornate: dalla 6ª alla 10ª giornata il massimale
+  è ridotto del 10% ({{ "%.2f"|format(rules.MASSIMALE_ESTERO_RIDOTTO_10) }} € / giorno),
+  dall'11ª del 20% ({{ "%.2f"|format(rules.MASSIMALE_ESTERO_RIDOTTO_20) }} € / giorno).
+  L'indennità di lavoro agile è esente per un massimo di
+  {{ rules.MAX_GIORNATE_LAVORO_AGILE }} giornate al mese.
+</p>
+<p class="nota">
+  Regime transitorio: le spese sostenute fino al 31/12/2025 restano soggette ai
+  massimali previgenti ({{ rules.RIFERIMENTO_NORMATIVO_PREVIGENTE }}) e al plafond
+  mensile di {{ "%.2f"|format(rules.PLAFOND_2025) }} €.
+</p>
 
 <section class="scheda">
   <h2>Come avviene il calcolo</h2>

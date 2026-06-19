@@ -2,7 +2,8 @@
 {% block titolo %}Riepilogo mensile{% endblock %}
 {% block contenuto %}
 <h1>Riepilogo mensile per dipendente</h1>
-<p class="nota">Plafond mensile di esenzione: {{ "%.2f"|format(plafond) }} € per dipendente.</p>
+<p class="nota">Plafond mensile di esenzione: {{ "%.2f"|format(plafond) }} € per dipendente
+  ({{ "%.2f"|format(plafond_previgente) }} € per i mesi fino a dicembre 2025).</p>
 
 <table class="tabella">
   <thead>

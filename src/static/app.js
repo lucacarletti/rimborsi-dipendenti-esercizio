@@ -3,6 +3,7 @@ const CAMPI_PER_CATEGORIA = {
   trasferta_italia: "giorni",
   trasferta_estero: "giorni",
   pasto: "giorni",
+  lavoro_agile: "giorni",
   chilometrico: "km",
   alloggio: "notti",
 };

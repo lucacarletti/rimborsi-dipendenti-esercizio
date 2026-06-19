@@ -91,8 +91,73 @@ def test_riepilogo_mostra_totali(client):
     assert "40.00" in testo
 
 
+def test_massimali_2026_applicati(client):
+    nuova_richiesta_pasto(
+        client, categoria="trasferta_italia", data="2026-02-10", importo="60.00", giorni="1"
+    )
+    richieste = storage.carica()
+    assert richieste[0]["quota_esente"] == 50.0
+    assert richieste[0]["quota_imponibile"] == 10.0
+
+
+def test_lavoro_agile_respinto_prima_del_2026(client):
+    risposta = nuova_richiesta_pasto(
+        client, categoria="lavoro_agile", data="2025-12-31", importo="10.50", giorni="3"
+    )
+    testo = risposta.get_data(as_text=True)
+    assert "respinta" in testo
+    assert "categoria non riconosciuta" in testo
+
+
+def test_lavoro_agile_valido_dal_2026(client):
+    nuova_richiesta_pasto(
+        client, categoria="lavoro_agile", data="2026-01-15", importo="10.50", giorni="3"
+    )
+    richieste = storage.carica()
+    assert richieste[0]["stato"] == "valida"
+    assert richieste[0]["quota_esente"] == 10.5
+
+
+def test_incompatibilita_lavoro_agile_trasferta(client):
+    # Trasferta nazionale 02-06/03/2026, poi lavoro agile 06-08/03/2026: la
+    # giornata del 06/03 si sovrappone -> respinta integralmente (Caso 6.5).
+    nuova_richiesta_pasto(
+        client, categoria="trasferta_italia", data="2026-03-02", importo="200.00", giorni="5"
+    )
+    risposta = nuova_richiesta_pasto(
+        client, categoria="lavoro_agile", data="2026-03-06", importo="10.50", giorni="3"
+    )
+    testo = risposta.get_data(as_text=True)
+    assert "respinta" in testo
+    assert "incompatibilità lavoro agile / trasferta" in testo
+
+
+def test_lavoro_agile_senza_sovrapposizione_valido(client):
+    nuova_richiesta_pasto(
+        client, categoria="trasferta_italia", data="2026-03-02", importo="200.00", giorni="3"
+    )
+    # Trasferta copre 02-04/03; lavoro agile dal 05/03 non si sovrappone.
+    nuova_richiesta_pasto(
+        client, categoria="lavoro_agile", data="2026-03-05", importo="7.00", giorni="2"
+    )
+    richieste = storage.carica()
+    assert richieste[1]["stato"] == "valida"
+
+
+def test_plafond_2026_da_1400(client):
+    # Alloggio 2026: 9 notti × 170 = 1530 teorico, ma plafond 2026 = 1400.
+    nuova_richiesta_pasto(
+        client, categoria="alloggio", data="2026-04-10", importo="1530.00", notti="9", giorni=""
+    )
+    richieste = storage.carica()
+    assert richieste[0]["quota_esente"] == 1400.0
+    assert richieste[0]["quota_imponibile"] == 130.0
+
+
 def test_normativa_mostra_massimali_vigenti(client):
     testo = client.get("/normativa").get_data(as_text=True)
-    assert "46.48" in testo
-    assert "77.47" in testo
-    assert "1200.00" in testo
+    assert "50.00" in testo
+    assert "85.00" in testo
+    assert "1400.00" in testo
+    assert "Indennità lavoro agile" in testo
+    assert "Circolare MEF n. 18/2026" in testo
