@@ -11,7 +11,7 @@ def valida(richiesta):
         return False, "dipendente mancante"
 
     categoria = richiesta.get("categoria")
-    if categoria not in rules.CATEGORIE:
+    if categoria not in rules.categorie_ammesse(richiesta.get("data")):
         return False, "categoria non riconosciuta"
 
     importo = richiesta.get("importo")

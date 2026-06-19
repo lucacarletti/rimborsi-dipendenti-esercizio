@@ -101,3 +101,25 @@ def test_alloggio_valido():
     assert validator.valida(
         richiesta(categoria="alloggio", notti=3, giorni=None)
     ) == (True, "")
+
+
+def test_lavoro_agile_valido_dal_2026():
+    assert validator.valida(
+        richiesta(categoria="lavoro_agile", data="2026-01-15", giorni=3)
+    ) == (True, "")
+
+
+def test_lavoro_agile_non_ammesso_prima_del_2026():
+    ok, motivazione = validator.valida(
+        richiesta(categoria="lavoro_agile", data="2025-12-31", giorni=3)
+    )
+    assert not ok
+    assert motivazione == "categoria non riconosciuta"
+
+
+def test_lavoro_agile_giornate_non_valide():
+    ok, motivazione = validator.valida(
+        richiesta(categoria="lavoro_agile", data="2026-01-15", giorni=0)
+    )
+    assert not ok
+    assert motivazione == "numero di giornate non valido"
